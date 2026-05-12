@@ -1,8 +1,4 @@
-from pathlib import Path
-
-from config import (
-    CSS_FILE
-)
+from config import CSS_FILE
 
 # =========================================================
 # LOAD CSS
@@ -12,10 +8,7 @@ def load_css():
 
     try:
 
-        with open(
-            CSS_FILE,
-            "r"
-        ) as f:
+        with open(CSS_FILE, "r") as f:
 
             css = f.read()
 
@@ -23,9 +16,7 @@ def load_css():
 
     except Exception as e:
 
-        print(
-            f"Error loading CSS: {e}"
-        )
+        print(f"Error loading CSS: {e}")
 
         return "<style></style>"
 
