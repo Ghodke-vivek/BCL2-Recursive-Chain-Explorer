@@ -1,52 +1,52 @@
 import streamlit as st
 
-from app.styles import PAGE_STYLE
+from styles import PAGE_STYLE
 
-from app.graph_loader import (
+from graph_loader import (
     load_all_graph_data
 )
 
-from app.pathway_manager import (
+from pathway_manager import (
     PathwayColorManager
 )
 
-from app.feedback_detector import (
+from feedback_detector import (
     FeedbackDetector
 )
 
-from app.node_expander import (
+from node_expander import (
     NodeExpander
 )
 
-from app.layout_manager import (
+from layout_manager import (
     get_graph_config
 )
 
-from app.components.graph_canvas import (
+from components.graph_canvas import (
     render_graph
 )
 
-from app.components.seed_chain_view import (
+from components.seed_chain_view import (
     build_seed_chain
 )
 
-from app.components.feedback_panel import (
+from components.feedback_panel import (
     render_feedback_panel
 )
 
-from app.components.node_panel import (
+from components.node_panel import (
     render_node_panel
 )
 
-from app.components.pathway_legend import (
+from components.pathway_legend import (
     render_pathway_legend
 )
 
-from app.utils import (
+from utils import (
     load_excel
 )
 
-from app.config import (
+from config import (
     SEED_FILE
 )
 
