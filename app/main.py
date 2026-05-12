@@ -1,61 +1,52 @@
 import streamlit as st
 
-from streamlit_agraph import (
-    Node,
-    Edge
-)
-
 from styles import PAGE_STYLE
 
-from app.graph_loader import (
+from graph_loader import (
     load_all_graph_data
 )
 
-from app.graph_builder import (
-    GraphBuilder
-)
-
-from app.pathway_manager import (
+from pathway_manager import (
     PathwayColorManager
 )
 
-from app.feedback_detector import (
+from feedback_detector import (
     FeedbackDetector
 )
 
-from app.node_expander import (
+from node_expander import (
     NodeExpander
 )
 
-from app.layout_manager import (
+from layout_manager import (
     get_graph_config
 )
 
-from app.components.graph_canvas import (
+from components.graph_canvas import (
     render_graph
 )
 
-from app.components.seed_chain_view import (
+from components.seed_chain_view import (
     build_seed_chain
 )
 
-from app.components.feedback_panel import (
+from components.feedback_panel import (
     render_feedback_panel
 )
 
-from app.components.node_panel import (
+from components.node_panel import (
     render_node_panel
 )
 
-from app.components.pathway_legend import (
+from components.pathway_legend import (
     render_pathway_legend
 )
 
-from app.utils import (
+from utils import (
     load_excel
 )
 
-from app.config import (
+from config import (
     SEED_FILE
 )
 
@@ -118,16 +109,6 @@ seed_df = load_excel(
 pathway_manager = PathwayColorManager()
 
 # =========================================================
-# GRAPH BUILDER
-# =========================================================
-
-graph_builder = GraphBuilder(
-    nodes_df=nodes_df,
-    edges_df=edges_df,
-    pathway_manager=pathway_manager
-)
-
-# =========================================================
 # FEEDBACK DETECTOR
 # =========================================================
 
@@ -140,8 +121,11 @@ feedback_detector = FeedbackDetector(
 # =========================================================
 
 node_expander = NodeExpander(
+
     edges_df=edges_df,
+
     node_index=node_index,
+
     chains=all_chains
 )
 
@@ -156,7 +140,7 @@ st.sidebar.title(
 st.sidebar.markdown("---")
 
 # =========================================================
-# SEED NODE SELECTION
+# SEED NODES
 # =========================================================
 
 seed_nodes = sorted(
@@ -164,7 +148,10 @@ seed_nodes = sorted(
     set(
         seed_df["Source_NodeID"]
     ).union(
-        set(seed_df["Target_NodeID"])
+
+        set(
+            seed_df["Target_NodeID"]
+        )
     )
 )
 
@@ -206,7 +193,10 @@ show_feedback = st.sidebar.checkbox(
 # =========================================================
 
 available_pathways = sorted(
-    edges_df["Pathway"].dropna().unique()
+
+    edges_df["Pathway"]
+    .dropna()
+    .unique()
 )
 
 selected_pathways = st.sidebar.multiselect(
@@ -234,7 +224,7 @@ st.markdown(
 )
 
 # =========================================================
-# BUILD SEED GRAPH
+# BUILD SEED CHAIN
 # =========================================================
 
 seed_nodes_graph, seed_edges_graph = build_seed_chain(
@@ -258,15 +248,21 @@ expanded_nodes, expanded_edges = node_expander.expand_node(
 )
 
 # =========================================================
-# MERGE SEED + EXPANSION
+# MERGE ALL NODES + EDGES
 # =========================================================
 
-all_nodes = seed_nodes_graph + expanded_nodes
+all_nodes = (
+    seed_nodes_graph
+    + expanded_nodes
+)
 
-all_edges = seed_edges_graph + expanded_edges
+all_edges = (
+    seed_edges_graph
+    + expanded_edges
+)
 
 # =========================================================
-# REMOVE DUPLICATES
+# REMOVE DUPLICATE NODES
 # =========================================================
 
 unique_nodes = {}
@@ -279,13 +275,20 @@ all_nodes = list(
     unique_nodes.values()
 )
 
+# =========================================================
+# REMOVE DUPLICATE EDGES
+# =========================================================
+
 unique_edges = {}
 
 for edge in all_edges:
 
     edge_key = (
+
         edge.source,
+
         edge.target,
+
         edge.label
     )
 
@@ -303,9 +306,13 @@ feedback_paths = []
 
 if show_feedback:
 
-    feedback_paths = feedback_detector.detect_feedback_loops(
+    feedback_paths = (
 
-        selected_seed_node
+        feedback_detector
+        .detect_feedback_loops(
+
+            selected_seed_node
+        )
     )
 
 # =========================================================
@@ -342,7 +349,7 @@ with left_col:
     )
 
 # =========================================================
-# SIDE INFO PANEL
+# RIGHT PANEL
 # =========================================================
 
 with right_col:
@@ -387,5 +394,8 @@ with right_col:
 st.markdown("---")
 
 st.caption(
-    "BCL2 Recursive Chain Explorer | Pathway-Specific Recursive Network Visualization"
+
+    "BCL2 Recursive Chain Explorer | "
+    "Pathway-Specific Recursive "
+    "Network Visualization"
 )
