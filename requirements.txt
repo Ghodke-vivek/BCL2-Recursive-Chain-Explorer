@@ -5,3 +5,4 @@ openpyxl
 streamlit-agraph
 plotly
 numpy
+pyarrow
