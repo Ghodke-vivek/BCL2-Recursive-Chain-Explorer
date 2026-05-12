@@ -1,24 +1,63 @@
 import streamlit as st
 
-from styles import PAGE_STYLE
+from app.styles import PAGE_STYLE
 
-from graph_loader import load_chain_files
-from graph_builder import GraphBuilder
-from pathway_manager import PathwayColorManager
-from feedback_detector import FeedbackDetector
-from node_expander import NodeExpander
-from layout_manager import get_graph_config
+from app.graph_loader import (
+    load_all_graph_data
+)
 
-from components.graph_canvas import render_graph
-from components.seed_chain_view import build_seed_chain
-from components.feedback_panel import render_feedback_panel
-from components.node_panel import render_node_panel
-from components.pathway_legend import render_pathway_legend
+from app.graph_builder import (
+    GraphBuilder
+)
 
-from utils import load_excel
-from config import SEED_FILE
+from app.pathway_manager import (
+    PathwayColorManager
+)
 
-from streamlit_agraph import Node, Edge
+from app.feedback_detector import (
+    FeedbackDetector
+)
+
+from app.node_expander import (
+    NodeExpander
+)
+
+from app.layout_manager import (
+    get_graph_config
+)
+
+from app.components.graph_canvas import (
+    render_graph
+)
+
+from app.components.seed_chain_view import (
+    build_seed_chain
+)
+
+from app.components.feedback_panel import (
+    render_feedback_panel
+)
+
+from app.components.node_panel import (
+    render_node_panel
+)
+
+from app.components.pathway_legend import (
+    render_pathway_legend
+)
+
+from app.utils import (
+    load_excel
+)
+
+from app.config import (
+    SEED_FILE
+)
+
+from streamlit_agraph import (
+    Node,
+    Edge
+)
 
 # =========================================================
 # PAGE CONFIG
