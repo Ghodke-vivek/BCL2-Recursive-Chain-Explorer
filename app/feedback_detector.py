@@ -6,14 +6,19 @@ import networkx as nx
 
 class FeedbackDetector:
 
-    def __init__(self, edges_df):
+    def __init__(
+
+        self,
+
+        edges_df
+    ):
 
         self.edges_df = edges_df
 
         self.graph = self._build_graph()
 
     # =====================================================
-    # BUILD NETWORKX GRAPH
+    # BUILD GRAPH
     # =====================================================
 
     def _build_graph(self):
@@ -23,16 +28,36 @@ class FeedbackDetector:
         for _, row in self.edges_df.iterrows():
 
             source = str(
-                row["Source_NodeID"]
+                row["Source"]
             )
 
             target = str(
-                row["Target_NodeID"]
+                row["Target"]
+            )
+
+            pathway = str(
+                row.get(
+                    "Pathway",
+                    ""
+                )
+            )
+
+            interaction = str(
+                row.get(
+                    "Interaction",
+                    ""
+                )
             )
 
             G.add_edge(
+
                 source,
-                target
+
+                target,
+
+                pathway=pathway,
+
+                interaction=interaction
             )
 
         return G
@@ -42,48 +67,55 @@ class FeedbackDetector:
     # =====================================================
 
     def detect_feedback_loops(
+
         self,
-        seed_node
+
+        selected_seed_node
     ):
 
         feedback_paths = []
 
-        for node in self.graph.nodes:
+        for node in self.graph.nodes():
 
-            if node == seed_node:
+            if node == selected_seed_node:
                 continue
 
             try:
 
-                path = nx.shortest_path(
+                if nx.has_path(
 
                     self.graph,
 
-                    source=node,
+                    node,
 
-                    target=seed_node
-                )
+                    selected_seed_node
+                ):
 
-                if len(path) > 1:
+                    path = nx.shortest_path(
 
-                    feedback_paths.append(
+                        self.graph,
 
-                        {
-                            "source": node,
+                        source=node,
 
-                            "target": seed_node,
-
-                            "path": path,
-
-                            "length": len(path)
-                        }
+                        target=selected_seed_node
                     )
 
-            except nx.NetworkXNoPath:
+                    if len(path) > 1:
 
-                continue
+                        feedback_paths.append(
 
-            except nx.NodeNotFound:
+                            {
+                                "source": node,
+
+                                "target": selected_seed_node,
+
+                                "path": path,
+
+                                "length": len(path)
+                            }
+                        )
+
+            except Exception:
 
                 continue
 
