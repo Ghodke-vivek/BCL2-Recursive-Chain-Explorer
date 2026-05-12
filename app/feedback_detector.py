@@ -1,12 +1,54 @@
 import networkx as nx
 
-def detect_feedback_paths(G, seed_nodes):
+# =========================================================
+# FEEDBACK DETECTOR
+# =========================================================
 
-    feedback_edges = []
+class FeedbackDetector:
 
-    for node in G.nodes:
+    def __init__(self, edges_df):
 
-        for seed_node in seed_nodes:
+        self.edges_df = edges_df
+
+        self.graph = self._build_graph()
+
+    # =====================================================
+    # BUILD NETWORKX GRAPH
+    # =====================================================
+
+    def _build_graph(self):
+
+        G = nx.DiGraph()
+
+        for _, row in self.edges_df.iterrows():
+
+            source = str(
+                row["Source_NodeID"]
+            )
+
+            target = str(
+                row["Target_NodeID"]
+            )
+
+            G.add_edge(
+                source,
+                target
+            )
+
+        return G
+
+    # =====================================================
+    # DETECT FEEDBACK LOOPS
+    # =====================================================
+
+    def detect_feedback_loops(
+        self,
+        seed_node
+    ):
+
+        feedback_paths = []
+
+        for node in self.graph.nodes:
 
             if node == seed_node:
                 continue
@@ -14,22 +56,35 @@ def detect_feedback_paths(G, seed_nodes):
             try:
 
                 path = nx.shortest_path(
-                    G,
+
+                    self.graph,
+
                     source=node,
-                    target=seed_node,
+
+                    target=seed_node
                 )
 
                 if len(path) > 1:
 
-                    feedback_edges.append(
+                    feedback_paths.append(
+
                         {
                             "source": node,
+
                             "target": seed_node,
+
                             "path": path,
+
+                            "length": len(path)
                         }
                     )
 
-            except:
-                pass
+            except nx.NetworkXNoPath:
 
-    return feedback_edges
+                continue
+
+            except nx.NodeNotFound:
+
+                continue
+
+        return feedback_paths
