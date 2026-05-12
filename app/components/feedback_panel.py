@@ -1,15 +1,72 @@
 import streamlit as st
 
+# =========================================================
+# FEEDBACK PANEL
+# =========================================================
 
-def render_feedback_panel(feedback_paths):
+def render_feedback_panel(
 
-    st.sidebar.subheader("Feedback Loops")
+    feedback_paths
+):
 
     if not feedback_paths:
-        st.sidebar.info("No feedback loops detected")
+
+        st.info(
+            "No feedback loops detected."
+        )
+
         return
 
-    for idx, path in enumerate(feedback_paths):
+    # =====================================================
+    # DISPLAY FEEDBACK LOOPS
+    # =====================================================
 
-        st.sidebar.write(f"Loop {idx + 1}")
-        st.sidebar.write(" → ".join(path))
+    for idx, feedback in enumerate(
+
+        feedback_paths
+    ):
+
+        source = feedback.get(
+            "source",
+            ""
+        )
+
+        target = feedback.get(
+            "target",
+            ""
+        )
+
+        path = feedback.get(
+            "path",
+            []
+        )
+
+        length = feedback.get(
+            "length",
+            0
+        )
+
+        with st.expander(
+
+            f"Feedback Loop {idx + 1}"
+
+        ):
+
+            st.markdown(
+
+                f"""
+                **Source Node:** `{source}`
+
+                **Reconnects To Seed:** `{target}`
+
+                **Path Length:** `{length}`
+                """
+            )
+
+            st.markdown(
+                "### Path"
+            )
+
+            st.code(
+                " → ".join(path)
+            )
