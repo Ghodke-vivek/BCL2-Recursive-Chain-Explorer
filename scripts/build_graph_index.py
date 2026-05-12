@@ -1,30 +1,114 @@
 import pandas as pd
-from pathlib import Path
-from collections import defaultdict
 import pickle
 
-CHAIN_DIR = Path("../data/expanded_chains")
+from pathlib import Path
+from collections import defaultdict
 
-all_files = list(CHAIN_DIR.glob("*.xlsx"))
+# =========================================================
+# DIRECTORIES
+# =========================================================
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+PROCESSED_DIR = (
+    ROOT_DIR / "data" / "processed"
+)
+
+CACHE_DIR = (
+    ROOT_DIR / "cache"
+)
+
+CACHE_DIR.mkdir(
+    exist_ok=True
+)
+
+# =========================================================
+# FILES
+# =========================================================
+
+EDGES_FILE = (
+    PROCESSED_DIR / "edges.parquet"
+)
+
+OUTPUT_FILE = (
+    CACHE_DIR / "graph_index.pkl"
+)
+
+# =========================================================
+# LOAD EDGES
+# =========================================================
+
+print("\nLoading edges parquet...\n")
+
+edges_df = pd.read_parquet(
+    EDGES_FILE
+)
+
+# =========================================================
+# BUILD GRAPH INDEX
+# =========================================================
 
 graph_index = defaultdict(list)
 
-for file in all_files:
+for _, row in edges_df.iterrows():
 
-    try:
-        df = pd.read_excel(file)
+    source = str(
+        row["Source"]
+    )
 
-        for _, row in df.iterrows():
+    target = str(
+        row["Target"]
+    )
 
-            source = str(row["Source_NodeID"])
-            target = str(row["Target_NodeID"])
+    interaction = str(
+        row.get(
+            "Interaction",
+            ""
+        )
+    )
 
-            graph_index[source].append(target)
+    pathway = str(
+        row.get(
+            "Pathway",
+            ""
+        )
+    )
 
-    except Exception as e:
-        print(e)
+    graph_index[source].append(
 
-with open("../cache/graph_index.pkl", "wb") as f:
-    pickle.dump(graph_index, f)
+        {
+            "target": target,
 
-print("Graph index saved.")
+            "interaction": interaction,
+
+            "pathway": pathway
+        }
+    )
+
+# =========================================================
+# SAVE INDEX
+# =========================================================
+
+with open(
+    OUTPUT_FILE,
+    "wb"
+) as f:
+
+    pickle.dump(
+        dict(graph_index),
+        f
+    )
+
+# =========================================================
+# SUMMARY
+# =========================================================
+
+print("====================================")
+print("GRAPH INDEX GENERATED")
+print("====================================")
+
+print(f"\nNodes Indexed: {len(graph_index)}")
+
+print(f"\nSaved To:\n{OUTPUT_FILE}")
+
+print("\n====================================")
