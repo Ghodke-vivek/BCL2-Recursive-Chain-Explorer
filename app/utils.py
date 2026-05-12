@@ -1,5 +1,5 @@
 import hashlib
-
+import pandas as pd
 
 def create_edge_id(source, target, relation_id):
     return hashlib.md5(
