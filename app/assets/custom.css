@@ -18,7 +18,7 @@ h1, h2, h3 {
     color: #ffffff;
 }
 
-.sidebar .sidebar-content {
+[data-testid="stSidebar"] {
     background-color: #161b22;
 }
 
@@ -42,6 +42,7 @@ h1, h2, h3 {
 }
 
 @keyframes pulse {
+
     0% {
         opacity: 0.5;
     }
