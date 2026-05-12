@@ -329,18 +329,27 @@ with left_col:
 
     selected_graph_node = render_graph(
 
-        nodes=all_nodes,
+    nodes=all_nodes,
 
-        edges=all_edges,
+    edges=all_edges,
 
-        config=graph_config
+    config=graph_config
+)
+
+# =========================================================
+# UPDATE ACTIVE NODE
+# =========================================================
+
+if (
+
+    selected_graph_node is not None
+
+    and selected_graph_node != ""
+):
+
+    st.session_state.selected_node = (
+        str(selected_graph_node)
     )
-
-    if selected_graph_node:
-
-        st.session_state.selected_node = (
-            selected_graph_node
-        )
 
 # =========================================================
 # RIGHT PANEL
