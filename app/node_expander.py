@@ -1,163 +1,160 @@
 from streamlit_agraph import (
-Node,
-Edge
+    Node,
+    Edge
 )
 
 # =========================================================
-
 # NODE EXPANDER
-
 # =========================================================
 
 class NodeExpander:
 
-```
-def __init__(
+    def __init__(
 
-    self,
+        self,
 
-    graph_index,
+        graph_index,
 
-    node_index
-):
+        node_index
+    ):
 
-    self.graph_index = graph_index
+        self.graph_index = graph_index
 
-    self.node_index = node_index
+        self.node_index = node_index
 
-# =====================================================
-# EXPAND SINGLE NODE
-# =====================================================
+    # =====================================================
+    # EXPAND SINGLE NODE
+    # =====================================================
 
-def expand_node(
+    def expand_node(
 
-    self,
-
-    node_id,
-
-    allowed_pathways=None
-):
-
-    visual_nodes = []
-
-    visual_edges = []
-
-    added_nodes = set()
-
-    # =================================================
-    # FETCH DIRECT NEIGHBORS
-    # =================================================
-
-    connected_edges = self.graph_index.get(
+        self,
 
         node_id,
 
-        []
-    )
+        allowed_pathways=None
+    ):
 
-    # =================================================
-    # PROCESS NEIGHBORS
-    # =================================================
+        visual_nodes = []
 
-    for edge_data in connected_edges:
+        visual_edges = []
 
-        source = str(
-            node_id
+        added_nodes = set()
+
+        # =================================================
+        # FETCH DIRECT NEIGHBORS
+        # =================================================
+
+        connected_edges = self.graph_index.get(
+
+            node_id,
+
+            []
         )
 
-        target = str(
-            edge_data.get(
-                "target",
-                ""
-            )
-        )
+        # =================================================
+        # PROCESS NEIGHBORS
+        # =================================================
 
-        interaction = str(
-            edge_data.get(
-                "interaction",
-                ""
-            )
-        )
+        for edge_data in connected_edges:
 
-        pathway = str(
-            edge_data.get(
-                "pathway",
-                ""
-            )
-        )
+            source = str(node_id)
 
-        # =============================================
-        # PATHWAY FILTER
-        # =============================================
+            target = str(
 
-        if (
-
-            allowed_pathways
-
-            and pathway not in allowed_pathways
-        ):
-
-            continue
-
-        # =============================================
-        # SOURCE NODE
-        # =============================================
-
-        if source not in added_nodes:
-
-            visual_nodes.append(
-
-                Node(
-
-                    id=source,
-
-                    label=source,
-
-                    size=30,
-
-                    color="#FF4B4B"
+                edge_data.get(
+                    "target",
+                    ""
                 )
             )
 
-            added_nodes.add(source)
+            interaction = str(
 
-        # =============================================
-        # TARGET NODE
-        # =============================================
-
-        if target not in added_nodes:
-
-            visual_nodes.append(
-
-                Node(
-
-                    id=target,
-
-                    label=target,
-
-                    size=22,
-
-                    color="#4CAF50"
+                edge_data.get(
+                    "interaction",
+                    ""
                 )
             )
 
-            added_nodes.add(target)
+            pathway = str(
 
-        # =============================================
-        # EDGE
-        # =============================================
-
-        visual_edges.append(
-
-            Edge(
-
-                source=source,
-
-                to=target,
-
-                color="#999999"
+                edge_data.get(
+                    "pathway",
+                    ""
+                )
             )
-        )
 
-    return visual_nodes, visual_edges
-```
+            # =============================================
+            # PATHWAY FILTER
+            # =============================================
+
+            if (
+
+                allowed_pathways
+
+                and pathway not in allowed_pathways
+            ):
+
+                continue
+
+            # =============================================
+            # SOURCE NODE
+            # =============================================
+
+            if source not in added_nodes:
+
+                visual_nodes.append(
+
+                    Node(
+
+                        id=source,
+
+                        label=source,
+
+                        size=30,
+
+                        color="#FF4B4B"
+                    )
+                )
+
+                added_nodes.add(source)
+
+            # =============================================
+            # TARGET NODE
+            # =============================================
+
+            if target not in added_nodes:
+
+                visual_nodes.append(
+
+                    Node(
+
+                        id=target,
+
+                        label=target,
+
+                        size=22,
+
+                        color="#4CAF50"
+                    )
+                )
+
+                added_nodes.add(target)
+
+            # =============================================
+            # EDGE
+            # =============================================
+
+            visual_edges.append(
+
+                Edge(
+
+                    source=source,
+
+                    to=target,
+
+                    color="#999999"
+                )
+            )
+
+        return visual_nodes, visual_edges
