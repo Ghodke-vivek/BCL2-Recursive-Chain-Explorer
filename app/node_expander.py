@@ -1,236 +1,163 @@
-from collections import defaultdict
-
 from streamlit_agraph import (
-    Node,
-    Edge
+Node,
+Edge
 )
 
 # =========================================================
+
 # NODE EXPANDER
+
 # =========================================================
 
 class NodeExpander:
 
-    def __init__(
+```
+def __init__(
 
-        self,
+    self,
 
-        edges_df,
+    graph_index,
 
-        node_index,
+    node_index
+):
 
-        chains
-    ):
+    self.graph_index = graph_index
 
-        self.edges_df = edges_df
+    self.node_index = node_index
 
-        self.node_index = node_index
+# =====================================================
+# EXPAND SINGLE NODE
+# =====================================================
 
-        self.chains = chains
+def expand_node(
 
-        self.edge_lookup = self._build_edge_lookup()
+    self,
 
-    # =====================================================
-    # BUILD EDGE LOOKUP
-    # =====================================================
+    node_id,
 
-    def _build_edge_lookup(self):
+    allowed_pathways=None
+):
 
-        lookup = defaultdict(list)
+    visual_nodes = []
 
-        for _, row in self.edges_df.iterrows():
+    visual_edges = []
 
-            source = str(
-                row["Source"]
-            )
+    added_nodes = set()
 
-            target = str(
-                row["Target"]
-            )
+    # =================================================
+    # FETCH DIRECT NEIGHBORS
+    # =================================================
 
-            lookup[source].append(row)
-
-            lookup[target].append(row)
-
-        return lookup
-
-    # =====================================================
-    # EXPAND NODE
-    # =====================================================
-
-    def expand_node(
-
-        self,
+    connected_edges = self.graph_index.get(
 
         node_id,
 
-        max_depth=3,
+        []
+    )
 
-        allowed_pathways=None
-    ):
+    # =================================================
+    # PROCESS NEIGHBORS
+    # =================================================
 
-        visited = set()
+    for edge_data in connected_edges:
 
-        visual_nodes = []
-
-        visual_edges = []
-
-        added_nodes = set()
-
-        # =================================================
-        # DFS RECURSION
-        # =================================================
-
-        def dfs(
-
-            current_node,
-
-            depth
-        ):
-
-            if depth > max_depth:
-
-                return
-
-            if current_node in visited:
-
-                return
-
-            visited.add(current_node)
-
-            connected_edges = self.edge_lookup.get(
-
-                current_node,
-
-                []
-            )
-
-            for row in connected_edges:
-
-                source = str(
-                    row["Source"]
-                )
-
-                target = str(
-                    row["Target"]
-                )
-
-                pathway = str(
-                    row.get("Pathway", "")
-                )
-
-                interaction = str(
-                    row.get("Interaction", "")
-                )
-
-                # =========================================
-                # PATHWAY FILTER
-                # =========================================
-
-                if (
-                    allowed_pathways
-                    and pathway not in allowed_pathways
-                ):
-
-                    continue
-
-                # =========================================
-                # NODE COLOR
-                # =========================================
-
-                color = "#4CAF50"
-
-                if source == node_id:
-
-                    color = "#FF4B4B"
-
-                # =========================================
-                # SOURCE NODE
-                # =========================================
-
-                if source not in added_nodes:
-
-                    visual_nodes.append(
-
-                        Node(
-
-                            id=source,
-
-                            label=source,
-
-                            size=20,
-
-                            color=color
-                        )
-                    )
-
-                    added_nodes.add(source)
-
-                # =========================================
-                # TARGET NODE
-                # =========================================
-
-                if target not in added_nodes:
-
-                    visual_nodes.append(
-
-                        Node(
-
-                            id=target,
-
-                            label=target,
-
-                            size=20,
-
-                            color="#2196F3"
-                        )
-                    )
-
-                    added_nodes.add(target)
-
-                # =========================================
-                # EDGE
-                # =========================================
-
-                visual_edges.append(
-
-                    Edge(
-
-                        source=source,
-
-                        target=target,
-
-                        label=interaction,
-
-                        color="#999999"
-                    )
-                )
-
-                # =========================================
-                # RECURSIVE EXPANSION
-                # =========================================
-
-                if source != current_node:
-
-                    dfs(
-                        source,
-                        depth + 1
-                    )
-
-                if target != current_node:
-
-                    dfs(
-                        target,
-                        depth + 1
-                    )
-
-        # =================================================
-        # START DFS
-        # =================================================
-
-        dfs(
-            node_id,
-            0
+        source = str(
+            node_id
         )
 
-        return visual_nodes, visual_edges
+        target = str(
+            edge_data.get(
+                "target",
+                ""
+            )
+        )
+
+        interaction = str(
+            edge_data.get(
+                "interaction",
+                ""
+            )
+        )
+
+        pathway = str(
+            edge_data.get(
+                "pathway",
+                ""
+            )
+        )
+
+        # =============================================
+        # PATHWAY FILTER
+        # =============================================
+
+        if (
+
+            allowed_pathways
+
+            and pathway not in allowed_pathways
+        ):
+
+            continue
+
+        # =============================================
+        # SOURCE NODE
+        # =============================================
+
+        if source not in added_nodes:
+
+            visual_nodes.append(
+
+                Node(
+
+                    id=source,
+
+                    label=source,
+
+                    size=30,
+
+                    color="#FF4B4B"
+                )
+            )
+
+            added_nodes.add(source)
+
+        # =============================================
+        # TARGET NODE
+        # =============================================
+
+        if target not in added_nodes:
+
+            visual_nodes.append(
+
+                Node(
+
+                    id=target,
+
+                    label=target,
+
+                    size=22,
+
+                    color="#4CAF50"
+                )
+            )
+
+            added_nodes.add(target)
+
+        # =============================================
+        # EDGE
+        # =============================================
+
+        visual_edges.append(
+
+            Edge(
+
+                source=source,
+
+                to=target,
+
+                color="#999999"
+            )
+        )
+
+    return visual_nodes, visual_edges
+```
