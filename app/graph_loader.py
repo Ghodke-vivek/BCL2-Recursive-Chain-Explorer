@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 import gzip
 
-from app.config import (
+from config import (
 
 ```
 NODES_FILE,
