@@ -151,7 +151,7 @@ class NodeExpander:
 
                     source=source,
 
-                    to=target,
+                    target=target,
 
                     color="#999999"
                 )
