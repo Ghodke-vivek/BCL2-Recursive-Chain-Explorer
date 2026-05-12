@@ -2,7 +2,9 @@ import pandas as pd
 import pickle
 import gzip
 
-from app.config import PROCESSED_DIR
+from app.config import (
+    PROCESSED_DIR
+)
 
 # =========================================================
 # FILE PATHS
