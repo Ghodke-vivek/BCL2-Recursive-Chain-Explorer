@@ -1,33 +1,170 @@
 import networkx as nx
 import pandas as pd
+
 from pathlib import Path
 
-CHAIN_DIR = Path("../data/expanded_chains")
+# =========================================================
+# DIRECTORIES
+# =========================================================
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+PROCESSED_DIR = (
+    ROOT_DIR / "data" / "processed"
+)
+
+# =========================================================
+# FILES
+# =========================================================
+
+EDGES_FILE = (
+    PROCESSED_DIR / "edges.parquet"
+)
+
+# =========================================================
+# LOAD EDGES
+# =========================================================
+
+print("\nLoading processed graph...\n")
+
+edges_df = pd.read_parquet(
+    EDGES_FILE
+)
+
+# =========================================================
+# BUILD GRAPH
+# =========================================================
 
 G = nx.DiGraph()
 
-all_files = list(CHAIN_DIR.glob("*.xlsx"))
+for _, row in edges_df.iterrows():
 
-for file in all_files:
+    source = str(
+        row["Source"]
+    )
 
-    try:
-        df = pd.read_excel(file)
+    target = str(
+        row["Target"]
+    )
 
-        for _, row in df.iterrows():
+    pathway = str(
+        row.get(
+            "Pathway",
+            ""
+        )
+    )
 
-            source = str(row["Source_NodeID"])
-            target = str(row["Target_NodeID"])
+    interaction = str(
+        row.get(
+            "Interaction",
+            ""
+        )
+    )
 
-            G.add_edge(source, target)
+    G.add_edge(
 
-    except:
-        pass
+        source,
 
-cycles = list(nx.simple_cycles(G))
+        target,
 
-print(f"Total feedback loops: {len(cycles)}")
+        pathway=pathway,
 
-for idx, cycle in enumerate(cycles[:20]):
+        interaction=interaction
+    )
 
-    print(f"\nLoop {idx + 1}")
-    print(" -> ".join(cycle))
+# =========================================================
+# DETECT FEEDBACK LOOPS
+# =========================================================
+
+print("Detecting feedback loops...\n")
+
+cycles = list(
+    nx.simple_cycles(G)
+)
+
+# =========================================================
+# SUMMARY
+# =========================================================
+
+print("====================================")
+print("FEEDBACK LOOP ANALYSIS")
+print("====================================")
+
+print(f"\nTotal Loops Detected: {len(cycles)}")
+
+# =========================================================
+# DISPLAY LOOPS
+# =========================================================
+
+MAX_DISPLAY = 20
+
+for idx, cycle in enumerate(
+
+    cycles[:MAX_DISPLAY]
+):
+
+    print(
+        f"\nLoop {idx + 1}"
+    )
+
+    print(
+        " -> ".join(cycle)
+    )
+
+    print(
+        f"Loop Length: {len(cycle)}"
+    )
+
+# =========================================================
+# OPTIONAL EXPORT
+# =========================================================
+
+export_df = pd.DataFrame(
+
+    {
+        "Loop_ID": [
+
+            f"LOOP_{i+1:04d}"
+
+            for i in range(
+                len(cycles)
+            )
+        ],
+
+        "Path": [
+
+            " -> ".join(cycle)
+
+            for cycle in cycles
+        ],
+
+        "Length": [
+
+            len(cycle)
+
+            for cycle in cycles
+        ]
+    }
+)
+
+OUTPUT_FILE = (
+    ROOT_DIR
+    / "cache"
+    / "feedback_loops.csv"
+)
+
+export_df.to_csv(
+
+    OUTPUT_FILE,
+
+    index=False
+)
+
+print("\n====================================")
+
+print(
+    f"Feedback loop report saved:\n"
+    f"{OUTPUT_FILE}"
+)
+
+print("\n====================================")
