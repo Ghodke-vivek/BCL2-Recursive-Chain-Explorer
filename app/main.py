@@ -5,7 +5,7 @@ from streamlit_agraph import (
     Edge
 )
 
-from app.styles import PAGE_STYLE
+from styles import PAGE_STYLE
 
 from app.graph_loader import (
     load_all_graph_data
