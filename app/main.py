@@ -287,9 +287,9 @@ for edge in all_edges:
 
         edge.source,
 
-        edge.target,
+        edge.to,
 
-        edge.label
+        str(edge.label)
     )
 
     unique_edges[edge_key] = edge
