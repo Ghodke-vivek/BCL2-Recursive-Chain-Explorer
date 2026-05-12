@@ -1,4 +1,8 @@
-import random
+import json
+
+from app.config import (
+    PATHWAY_COLOR_FILE
+)
 
 
 def generate_color():
