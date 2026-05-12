@@ -361,12 +361,12 @@ with right_col:
         "Node Information"
     )
 
-    active_node = (
+    active_node = st.session_state.get(
 
-        st.session_state.selected_node
-        if st.session_state.selected_node
-        else selected_seed_node
-    )
+    "selected_node",
+
+    selected_seed_node
+)
 
     render_node_panel(
 
