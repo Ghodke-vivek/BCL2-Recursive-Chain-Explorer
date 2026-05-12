@@ -1,13 +1,36 @@
-CUSTOM_CSS = """
-<style>
+from pathlib import Path
 
-.block-container {
-    padding-top: 1rem;
-}
+from config import (
+    CSS_FILE
+)
 
-h1 {
-    color: white;
-}
+# =========================================================
+# LOAD CSS
+# =========================================================
 
-</style>
-"""
+def load_css():
+
+    try:
+
+        with open(
+            CSS_FILE,
+            "r"
+        ) as f:
+
+            css = f.read()
+
+        return f"<style>{css}</style>"
+
+    except Exception as e:
+
+        print(
+            f"Error loading CSS: {e}"
+        )
+
+        return "<style></style>"
+
+# =========================================================
+# PAGE STYLE
+# =========================================================
+
+PAGE_STYLE = load_css()
