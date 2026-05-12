@@ -1,86 +1,97 @@
 import streamlit as st
 
-from styles import PAGE_STYLE
+from app.styles import PAGE_STYLE
 
-from graph_loader import (
-    load_all_graph_data
+from app.graph_loader import (
+load_all_graph_data
 )
 
-from pathway_manager import (
-    PathwayColorManager
+from app.pathway_manager import (
+PathwayColorManager
 )
 
-from feedback_detector import (
-    FeedbackDetector
+from app.feedback_detector import (
+FeedbackDetector
 )
 
-from node_expander import (
-    NodeExpander
+from app.node_expander import (
+NodeExpander
 )
 
-from layout_manager import (
-    get_graph_config
+from app.layout_manager import (
+get_graph_config
 )
 
-from components.graph_canvas import (
-    render_graph
+from app.components.graph_canvas import (
+render_graph
 )
 
-from components.seed_chain_view import (
-    build_seed_chain
+from app.components.seed_chain_view import (
+build_seed_chain
 )
 
-from components.feedback_panel import (
-    render_feedback_panel
+from app.components.feedback_panel import (
+render_feedback_panel
 )
 
-from components.node_panel import (
-    render_node_panel
+from app.components.node_panel import (
+render_node_panel
 )
 
-from components.pathway_legend import (
-    render_pathway_legend
+from app.components.pathway_legend import (
+render_pathway_legend
 )
 
-from utils import (
-    load_excel
+from app.utils import (
+load_excel
 )
 
-from config import (
-    SEED_FILE
+from app.config import (
+SEED_FILE
 )
 
 # =========================================================
+
 # PAGE CONFIG
+
 # =========================================================
 
 st.set_page_config(
 
-    page_title="BCL2 Recursive Chain Explorer",
+```
+page_title="BCL2 Recursive Chain Explorer",
 
-    layout="wide",
+layout="wide",
 
-    initial_sidebar_state="expanded"
+initial_sidebar_state="expanded"
+```
+
 )
 
 # =========================================================
+
 # APPLY CSS
+
 # =========================================================
 
 st.markdown(
-    PAGE_STYLE,
-    unsafe_allow_html=True
+PAGE_STYLE,
+unsafe_allow_html=True
 )
 
 # =========================================================
+
 # LOAD DATA
+
 # =========================================================
 
 @st.cache_data(show_spinner=True)
 
 def cached_graph_data():
 
-    return load_all_graph_data()
+```
+return load_all_graph_data()
+```
 
 graph_data = cached_graph_data()
 
@@ -94,308 +105,391 @@ node_index = graph_data["node_index"]
 
 pathway_index = graph_data["pathway_index"]
 
+graph_index = graph_data["graph_index"]
+
 # =========================================================
+
 # LOAD SEED NETWORK
+
 # =========================================================
 
 seed_df = load_excel(
-    SEED_FILE
+SEED_FILE
 )
 
 # =========================================================
+
 # PATHWAY COLORS
+
 # =========================================================
 
 pathway_manager = PathwayColorManager()
 
 # =========================================================
+
 # FEEDBACK DETECTOR
+
 # =========================================================
 
 feedback_detector = FeedbackDetector(
-    edges_df=edges_df
+edges_df=edges_df
 )
 
 # =========================================================
+
 # NODE EXPANDER
+
 # =========================================================
 
 node_expander = NodeExpander(
 
-    edges_df=edges_df,
+```
+graph_index=graph_index,
 
-    node_index=node_index,
+node_index=node_index
+```
 
-    chains=all_chains
 )
 
 # =========================================================
+
+# SESSION STATE
+
+# =========================================================
+
+if "selected_node" not in st.session_state:
+
+```
+st.session_state.selected_node = None
+```
+
+# =========================================================
+
 # SIDEBAR
+
 # =========================================================
 
 st.sidebar.title(
-    "BCL2 Recursive Explorer"
+"BCL2 Recursive Explorer"
 )
 
 st.sidebar.markdown("---")
 
 # =========================================================
+
 # SEED NODES
+
 # =========================================================
 
 seed_nodes = sorted(
 
-    set(
-        seed_df["Source_NodeID"]
-    ).union(
+```
+set(
+    seed_df["Source_NodeID"]
+).union(
 
-        set(
-            seed_df["Target_NodeID"]
-        )
+    set(
+        seed_df["Target_NodeID"]
     )
+)
+```
+
 )
 
 selected_seed_node = st.sidebar.selectbox(
 
-    "Select Seed Chain Node",
+```
+"Select Seed Chain Node",
 
-    seed_nodes
+seed_nodes
+```
+
 )
 
 # =========================================================
-# EXPANSION DEPTH
-# =========================================================
 
-max_depth = st.sidebar.slider(
-
-    "Expansion Depth",
-
-    min_value=1,
-
-    max_value=10,
-
-    value=3
-)
-
-# =========================================================
 # FEEDBACK TOGGLE
+
 # =========================================================
 
 show_feedback = st.sidebar.checkbox(
 
-    "Enable Feedback Loop Detection",
+```
+"Enable Feedback Loop Detection",
 
-    value=True
+value=True
+```
+
 )
 
 # =========================================================
+
 # PATHWAY FILTER
+
 # =========================================================
 
 available_pathways = sorted(
 
-    edges_df["Pathway"]
-    .dropna()
-    .unique()
+```
+edges_df["Pathway"]
+.dropna()
+.unique()
+```
+
 )
 
 selected_pathways = st.sidebar.multiselect(
 
-    "Filter Pathways",
+```
+"Filter Pathways",
 
-    available_pathways,
+available_pathways,
 
-    default=available_pathways
+default=available_pathways
+```
+
 )
 
 # =========================================================
+
 # TITLE
+
 # =========================================================
 
 st.title(
-    "BCL2 Recursive Chain Network Explorer"
+"BCL2 Recursive Chain Network Explorer"
 )
 
 st.markdown(
-    """
-    Interactive visualization of recursive pathway expansion,
-    seed-chain branching, and feedback loop architecture.
-    """
+"""
+Interactive visualization of recursive pathway expansion,
+seed-chain branching, and feedback loop architecture.
+"""
 )
 
 # =========================================================
+
 # BUILD SEED CHAIN
+
 # =========================================================
 
 seed_nodes_graph, seed_edges_graph = build_seed_chain(
 
-    seed_df=seed_df,
+```
+seed_df=seed_df,
 
-    pathway_manager=pathway_manager
+pathway_manager=pathway_manager
+```
+
 )
 
 # =========================================================
-# NODE EXPANSION
+
+# TEMPORARY EXPANSION
+
 # =========================================================
 
 expanded_nodes, expanded_edges = node_expander.expand_node(
 
-    selected_seed_node,
+```
+selected_seed_node,
 
-    max_depth=max_depth,
+allowed_pathways=selected_pathways
+```
 
-    allowed_pathways=selected_pathways
 )
 
 # =========================================================
+
 # MERGE ALL NODES + EDGES
+
 # =========================================================
 
 all_nodes = (
-    seed_nodes_graph
-    + expanded_nodes
+seed_nodes_graph
++ expanded_nodes
 )
 
 all_edges = (
-    seed_edges_graph
-    + expanded_edges
+seed_edges_graph
++ expanded_edges
 )
 
 # =========================================================
+
 # REMOVE DUPLICATE NODES
+
 # =========================================================
 
 unique_nodes = {}
 
 for node in all_nodes:
 
-    unique_nodes[node.id] = node
+```
+unique_nodes[node.id] = node
+```
 
 all_nodes = list(
-    unique_nodes.values()
+unique_nodes.values()
 )
 
 # =========================================================
+
 # REMOVE DUPLICATE EDGES
+
 # =========================================================
 
 unique_edges = {}
 
 for edge in all_edges:
 
-    edge_key = (
+```
+edge_key = (
 
-        edge.source,
+    edge.source,
 
-        edge.to,
+    edge.to
+)
 
-        str(edge.label)
-    )
-
-    unique_edges[edge_key] = edge
+unique_edges[edge_key] = edge
+```
 
 all_edges = list(
-    unique_edges.values()
+unique_edges.values()
 )
 
 # =========================================================
+
 # FEEDBACK DETECTION
+
 # =========================================================
 
 feedback_paths = []
 
 if show_feedback:
 
-    feedback_paths = (
+```
+feedback_paths = (
 
-        feedback_detector
-        .detect_feedback_loops(
+    feedback_detector
+    .detect_feedback_loops(
 
-            selected_seed_node
-        )
+        selected_seed_node
     )
+)
+```
 
 # =========================================================
+
 # GRAPH CONFIG
+
 # =========================================================
 
 graph_config = get_graph_config()
 
 # =========================================================
+
 # MAIN LAYOUT
+
 # =========================================================
 
 left_col, right_col = st.columns(
-    [4, 1]
+[4, 1]
 )
 
 # =========================================================
+
 # GRAPH PANEL
+
 # =========================================================
 
 with left_col:
 
-    st.subheader(
-        "Recursive Network Graph"
+```
+st.subheader(
+    "Recursive Network Graph"
+)
+
+selected_graph_node = render_graph(
+
+    nodes=all_nodes,
+
+    edges=all_edges,
+
+    config=graph_config
+)
+
+if selected_graph_node:
+
+    st.session_state.selected_node = (
+        selected_graph_node
     )
-
-    render_graph(
-
-        nodes=all_nodes,
-
-        edges=all_edges,
-
-        config=graph_config
-    )
+```
 
 # =========================================================
+
 # RIGHT PANEL
+
 # =========================================================
 
 with right_col:
 
+```
+st.subheader(
+    "Node Information"
+)
+
+active_node = (
+
+    st.session_state.selected_node
+    if st.session_state.selected_node
+    else selected_seed_node
+)
+
+render_node_panel(
+
+    active_node,
+
+    node_index
+)
+
+st.markdown("---")
+
+st.subheader(
+    "Pathway Legend"
+)
+
+render_pathway_legend(
+    pathway_manager
+)
+
+st.markdown("---")
+
+if show_feedback:
+
     st.subheader(
-        "Node Information"
+        "Feedback Loops"
     )
 
-    render_node_panel(
-
-        selected_seed_node,
-
-        node_index
+    render_feedback_panel(
+        feedback_paths
     )
-
-    st.markdown("---")
-
-    st.subheader(
-        "Pathway Legend"
-    )
-
-    render_pathway_legend(
-        pathway_manager
-    )
-
-    st.markdown("---")
-
-    if show_feedback:
-
-        st.subheader(
-            "Feedback Loops"
-        )
-
-        render_feedback_panel(
-            feedback_paths
-        )
+```
 
 # =========================================================
+
 # FOOTER
+
 # =========================================================
 
 st.markdown("---")
 
 st.caption(
 
-    "BCL2 Recursive Chain Explorer | "
-    "Pathway-Specific Recursive "
-    "Network Visualization"
+```
+"BCL2 Recursive Chain Explorer | "
+"Pathway-Specific Recursive "
+"Network Visualization"
+```
+
 )
