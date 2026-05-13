@@ -328,13 +328,16 @@ with left_col:
     )
 
     selected_graph_node = render_graph(
-
     nodes=all_nodes,
-
     edges=all_edges,
-
     config=graph_config
 )
+
+# DEBUG + STATE UPDATE
+if selected_graph_node:
+    st.session_state.selected_node = str(selected_graph_node)
+
+st.write("DEBUG CLICK:", selected_graph_node)
 
 # =========================================================
 # UPDATE ACTIVE NODE
