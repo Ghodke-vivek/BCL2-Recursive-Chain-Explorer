@@ -122,10 +122,9 @@ feedback_detector = FeedbackDetector(
 # =========================================================
 
 node_expander = NodeExpander(
-
-    graph_index=graph_index,
-
-    node_index=node_index
+    edges_df=edges_df,
+    node_index=node_index,
+    chains=all_chains
 )
 
 # =========================================================
