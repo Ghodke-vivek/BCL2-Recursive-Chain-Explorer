@@ -6,23 +6,30 @@ from streamlit_agraph import Config
 
 def get_graph_config():
 
-    config = Config(
+    return Config(
 
         width="100%",
-
         height=900,
 
         directed=True,
 
-        physics=True,
+        # ❗ MUST be False for stable hierarchy
+        physics=False,
 
-        hierarchical=True,
-
+        # ✅ REQUIRED FOR CLICK DETECTION
         nodeHighlightBehavior=True,
-
         highlightColor="#F7A7A6",
 
-        collapsible=True
-    )
+        # ❗ DO NOT use both hierarchical=True and layout={}
+        # Use ONLY layout block
 
-    return config
+        layout={
+            "hierarchical": {
+                "enabled": True,
+                "direction": "RL",   # RIGHT → LEFT
+                "sortMethod": "directed",
+                "nodeSpacing": 150,
+                "levelSeparation": 200
+            }
+        }
+    )
